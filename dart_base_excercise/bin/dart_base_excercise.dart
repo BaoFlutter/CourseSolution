@@ -64,6 +64,7 @@ var classInformation = {
 Yêu cầu: In ra số hotline của lớp học trên.
  */
 //========== Bài giải =========
+/*
 void main(List<String> arguments) {
   Map classInformation = {
     "id": 12,
@@ -73,4 +74,4 @@ void main(List<String> arguments) {
   String  description = classInformation['description'];
   print(description.substring(description.length -10, description.length));
 }
-
+*/
