@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -16,6 +18,9 @@ class _HomeScreenState extends State<HomeScreen> {
   TextEditingController? customerNameController, bookNumberController;
 
   SharedPreferences? sharedPreferences ;
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+
+  Future<Map<String, int>>? oldResult;
 
   FocusNode? focusNode;
   bool isVip = false;
@@ -23,6 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
   var customerNumber =0 ;
   var vipCustomerNumber = 0 ;
   var moneyTotal = 0;
+  bool newSession = true;
 
 
   @override
@@ -47,11 +53,18 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    var heightStatusBar = MediaQuery.of(context).padding.top;
     return Scaffold(
         body: SingleChildScrollView(
           child: Container(
+            height: MediaQuery.of(context).size.height,
+            width: MediaQuery.of(context).size.width,
             child: Column(
               children: [
+                // Trừ đi đoạn StausBar ( time, nhà mạng, cột sóng... )
+                SizedBox(
+                  height: heightStatusBar,
+                ),
                 TextWidget(
                     weightBox: MediaQuery.of(context).size.width,
                     text: ONLINE_BOOK_SELLING_PROGRAM,
@@ -102,10 +115,17 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: ButtonItemWidget(
                           buttonText: CONTINUE,
                           buttonFunction:(){
-                            if(customerNameController!.text !=""){
+                            if((bookNumberController!.text!="")&&(customerNameController!.text !="")){
                               customerNumber ++;
                               if(isVip) vipCustomerNumber ++;
-                              moneyTotal += bookMoney;
+                              if(bookMoney!=0)
+                              {
+                                moneyTotal += bookMoney;
+                              }
+                              else {
+                                bookMoney = tinhTienFunction();
+                                moneyTotal += bookMoney;
+                              }
                             }
                             customerNameController!.text ="";
                             bookNumberController!.text = "";
@@ -165,21 +185,63 @@ class _HomeScreenState extends State<HomeScreen> {
                     weightBox: MediaQuery.of(context).size.width,
                     marginBox: EdgeInsets.only(top: 10, bottom: 10)
                 ),
-                TextAndTextWidget(
-                    titleText: CUSTOMER_TOTAL,
-                    contentText: customerNumber.toString(),
-                    textContentBoxColor: Colors.transparent,
-                    alignContentText: TextAlign.left),
-                TextAndTextWidget(
-                    titleText: VIP_CUSTOMER_TOTAL,
-                    contentText: vipCustomerNumber.toString(),
-                    textContentBoxColor: Colors.transparent,
-                    alignContentText: TextAlign.left),
-                TextAndTextWidget(
-                    titleText:INCOME_TOTAL,
-                    contentText: moneyTotal.toString(),
-                    textContentBoxColor: Colors.transparent,
-                    alignContentText: TextAlign.left),
+                newSession ? FutureBuilder<Map<String, int>>(
+                    future: oldResult,
+                    builder: (context, snapshot)
+                    {
+                      if(snapshot.hasError)
+                        return Center(
+                          child: Text(ERROR),
+                        );
+                      if(!snapshot.hasData)
+                        return Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      Map<String, int> oldResultData = snapshot.data!;
+                      newSession = false;
+                      return Container(
+                        child: Column(
+                          children: [
+                            TextAndTextWidget(
+                                titleText: CUSTOMER_TOTAL,
+                                contentText: oldResultData['customer_total'].toString(),
+                                textContentBoxColor: Colors.transparent,
+                                alignContentText: TextAlign.left),
+                            TextAndTextWidget(
+                                titleText: VIP_CUSTOMER_TOTAL,
+                                contentText: oldResultData['vip_customer'].toString(),
+                                textContentBoxColor: Colors.transparent,
+                                alignContentText: TextAlign.left),
+                            TextAndTextWidget(
+                                titleText:INCOME_TOTAL,
+                                contentText: oldResultData['money_total'].toString(),
+                                textContentBoxColor: Colors.transparent,
+                                alignContentText: TextAlign.left),
+                          ],
+                        ),
+                      ) ;
+                    }):
+                Container(
+                  child: Column(
+                    children: [
+                      TextAndTextWidget(
+                          titleText: CUSTOMER_TOTAL,
+                          contentText: customerNumber.toString(),
+                          textContentBoxColor: Colors.transparent,
+                          alignContentText: TextAlign.left),
+                      TextAndTextWidget(
+                          titleText: VIP_CUSTOMER_TOTAL,
+                          contentText: vipCustomerNumber.toString(),
+                          textContentBoxColor: Colors.transparent,
+                          alignContentText: TextAlign.left),
+                      TextAndTextWidget(
+                          titleText:INCOME_TOTAL,
+                          contentText: moneyTotal.toString(),
+                          textContentBoxColor: Colors.transparent,
+                          alignContentText: TextAlign.left),
+                    ],
+                  ),
+                ),
                 Container(
                   height: 30,
                   width: MediaQuery.of(context).size.width,
@@ -195,16 +257,24 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   setInforToDatabase({required customer_total,required vip_customer, required money_total })async {
-    sharedPreferences = await SharedPreferences.getInstance();
-    await sharedPreferences!.setInt("customer_total", customer_total);
-    await sharedPreferences!.setInt("vip_customer", vip_customer);
-    await sharedPreferences!.setInt("money_total", money_total);
+    final SharedPreferences prefs = await _prefs;
+    await prefs.setInt("customer_total", customer_total);
+    await prefs.setInt("vip_customer", vip_customer);
+    await prefs.setInt("money_total", money_total);
   }
-  getInforFromDatabase()async {
-    sharedPreferences = await SharedPreferences.getInstance();
-    customerNumber = sharedPreferences!.getInt("customer_total")?? 0;
-    vipCustomerNumber = sharedPreferences!.getInt("vip_customer")?? 0;
-    moneyTotal = sharedPreferences!.getInt("money_total")?? 0;
+  getInforFromDatabase() {
+    //Lấy dữ liệu từ bộ nhớ và truyền vào biến hiện tại
+      oldResult = _prefs.then((SharedPreferences prefs){
+      customerNumber = prefs.getInt("customer_total")?? 0;
+      vipCustomerNumber = prefs.getInt("vip_customer")?? 0;
+      moneyTotal = prefs.getInt("money_total")?? 0;
+      return {
+        "customer_total" :customerNumber,
+        "vip_customer" : vipCustomerNumber,
+        "money_total" : moneyTotal
+      };
+    });
+
   }
 
   int tinhTienFunction(){
@@ -260,10 +330,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             TextButton(
               child: Text(AGREE),
-              onPressed: () {
-                clearSharedPreference();
-                Navigator.of(context).pop();
-              },
+              onPressed: ()=> exit(0)
             ),
           ],
         );

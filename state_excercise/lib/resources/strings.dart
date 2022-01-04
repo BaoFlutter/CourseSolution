@@ -15,3 +15,4 @@ const String NOTICE = "Thông báo";
 const String EXIT_NOTICE = "Bạn có muốn thoát chương trình ?";
 const String CANCEL = "Huỷ";
 const String AGREE = "Đồng ý";
+const String ERROR = "Dữ liệu lỗi";
