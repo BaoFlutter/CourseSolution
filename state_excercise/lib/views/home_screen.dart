@@ -96,7 +96,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     textContentBoxColor: Colors.black26,
                     alignContentText: TextAlign.center),
                 Container(
-                  margin: EdgeInsets.only(right: 5, left: 5),
+                  margin: const EdgeInsets.only(right: 5, left: 5),
                   child: Row(
                     children: [
                       Expanded(
@@ -183,7 +183,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     colorBox: Colors.green,
                     textAlign: TextAlign.left,
                     weightBox: MediaQuery.of(context).size.width,
-                    marginBox: EdgeInsets.only(top: 10, bottom: 10)
+                    marginBox: const EdgeInsets.only(top: 10, bottom: 10)
                 ),
                 newSession ? FutureBuilder<Map<String, int>>(
                     future: oldResult,
@@ -290,7 +290,7 @@ class _HomeScreenState extends State<HomeScreen> {
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           Container(
-            margin: EdgeInsets.only(right: 10),
+            margin: const EdgeInsets.only(right: 10),
             child: IconButton(
                 icon: Icon(Icons.logout),
                 onPressed: (){
@@ -351,7 +351,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: CheckboxListTile(
                 title: Text(VIP_CUSTOMER),
                 value: isVip,
-                contentPadding: EdgeInsets.only(left: 0),
+                contentPadding: const EdgeInsets.only(left: 0),
                 activeColor: Colors.red,
                 onChanged: (newValue) {
                   setState(() {

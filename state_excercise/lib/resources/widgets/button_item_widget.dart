@@ -8,9 +8,9 @@ class ButtonItemWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       child: Container(
-        margin: EdgeInsets.only(right: 10),
+        margin: const EdgeInsets.only(right: 10),
         color: Colors.grey,
-        padding: EdgeInsets.only(right: 20, left: 20, top: 10, bottom: 10),
+        padding: const EdgeInsets.only(right: 20, left: 20, top: 10, bottom: 10),
         child: Text(buttonText.toUpperCase(), textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold),),
       ),
       onTap: buttonFunction,

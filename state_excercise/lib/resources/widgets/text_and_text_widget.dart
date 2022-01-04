@@ -10,7 +10,7 @@ class TextAndTextWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.only(top: 10, bottom: 10),
+      padding: const EdgeInsets.only(top: 10, bottom: 10),
       child: Row(
         children: [
           Expanded(
@@ -20,7 +20,7 @@ class TextAndTextWidget extends StatelessWidget {
           Expanded(
               flex: 3,
               child: Container(
-                padding: EdgeInsets.only(top: 5, bottom: 5),
+                padding: const EdgeInsets.only(top: 5, bottom: 5),
                 color: textContentBoxColor,
                 child: Text(contentText,
                   textAlign: alignContentText,

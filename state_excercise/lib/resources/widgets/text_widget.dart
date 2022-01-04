@@ -12,7 +12,7 @@ class TextWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: weightBox,
-      padding: EdgeInsets.only(left: 5, top: 5, bottom: 5),
+      padding: const EdgeInsets.only(left: 5, top: 5, bottom: 5),
       margin: marginBox,
       decoration: BoxDecoration(
           color: colorBox
